@@ -1,34 +1,26 @@
-import { MikroORM, serialize, SqliteDriver } from '@mikro-orm/sqlite';
+import { MikroORM, SqliteDriver } from '@mikro-orm/sqlite';
 import { Cue } from './entities/db/Cue';
 import { TsMorphMetadataProvider } from '@mikro-orm/reflection';
 import { Attribute } from './entities/db/Attribute';
+import { User } from './entities/db/User';
 
 const orm = await MikroORM.init({
-	entities: [ Cue, Attribute ] as const,
+	entities: [ User, Cue, Attribute ] as const,
 	metadataProvider: TsMorphMetadataProvider,
 	driver: SqliteDriver,
 	dbName: 'my-db-name.sqlite'
 });
 
 await orm.getSchemaGenerator().refreshDatabase();
-// await orm.getSchemaGenerator().createSchema();
 
 const em = orm.em.fork();
 
-console.log(orm.em); // access EntityManager via `em` property
+em.create(User, { name: "Jürgen", email: "jürgen@jürgen.com" });
 
-const cue = em.create(Cue, {
-	name: 'cue',
-	data: []
-});
+await em.flush();
 
-cue.data = [{ instruction: { value: 'foo' }, attribute: new Attribute("attribute") }];
-await em.persistAndFlush(cue);
+await em.upsert(User, { email: "jürgen@jürgen.com", name: "Peter" });
 
-const cueFetched = await em.findOne(Cue, { name: 'cue' });
+const users = await em.findAll(User);
 
-if (!cueFetched) {
-	throw new Error('Cue not found');
-}
-
-console.dir(serialize(cueFetched), { depth: null });
+console.log(users);

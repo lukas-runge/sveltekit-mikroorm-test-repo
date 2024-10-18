@@ -1,17 +1,11 @@
 export class Parameter {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    private _value: any = null;
-    private _type: "number" | "boolean";
+    cueId: string;
+    value: number = 0;
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    constructor(value: any, type: "number" | "boolean") {
-        this._value = value;
-        this._type = type;
+    constructor(cueId: string, value: number) {
+        this.cueId = cueId;
+        this.value = value;
 
         console.log('Parameter created:', this);
-    }
-
-    get value() {
-        return this._value;
     }
 }
